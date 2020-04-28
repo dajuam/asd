@@ -2,9 +2,8 @@ import PySimpleGUI as sg
 import os
 import sys
 import copy
-import chess
 
-CHESS_PATH = '.'  # path to the chess pieces
+PATH = '.'  # path to the chess pieces
 
 BLANK = 0  # piece names
 PAWNB = 1
@@ -31,19 +30,19 @@ initial_board = [[BLANK, ] * 8,
 
 atril_inicial = [[BISHOPB, ] * 6]
 
-blank = os.path.join(CHESS_PATH, 'blank.png')
-bishopB = os.path.join(CHESS_PATH, 'nbishopb.png')
-bishopW = os.path.join(CHESS_PATH, 'nbishopw.png')
-pawnB = os.path.join(CHESS_PATH, 'npawnb.png')
-pawnW = os.path.join(CHESS_PATH, 'npawnw.png')
-knightB = os.path.join(CHESS_PATH, 'nknightb.png')
-knightW = os.path.join(CHESS_PATH, 'nknightw.png')
-rookB = os.path.join(CHESS_PATH, 'nrookb.png')
-rookW = os.path.join(CHESS_PATH, 'nrookw.png')
-queenB = os.path.join(CHESS_PATH, 'nqueenb.png')
-queenW = os.path.join(CHESS_PATH, 'nqueenw.png')
-kingB = os.path.join(CHESS_PATH, 'nkingb.png')
-kingW = os.path.join(CHESS_PATH, 'nkingw.png')
+blank = os.path.join(PATH, 'blank.png')
+bishopB = os.path.join(PATH, 'nbishopb.png')
+bishopW = os.path.join(PATH, 'nbishopw.png')
+pawnB = os.path.join(PATH, 'npawnb.png')
+pawnW = os.path.join(PATH, 'npawnw.png')
+knightB = os.path.join(PATH, 'nknightb.png')
+knightW = os.path.join(PATH, 'nknightw.png')
+rookB = os.path.join(PATH, 'nrookb.png')
+rookW = os.path.join(PATH, 'nrookw.png')
+queenB = os.path.join(PATH, 'nqueenb.png')
+queenW = os.path.join(PATH, 'nqueenw.png')
+kingB = os.path.join(PATH, 'nkingb.png')
+kingW = os.path.join(PATH, 'nkingw.png')
 
 images = {BISHOPB: bishopB, BISHOPW: bishopW, PAWNB: pawnB, PAWNW: pawnW, KNIGHTB: knightB, KNIGHTW: knightW,
           ROOKB: rookB, ROOKW: rookW, KINGB: kingB, KINGW: kingW, QUEENB: queenB, QUEENW: queenW, BLANK: blank}
@@ -119,12 +118,12 @@ def PlayGame():
                        auto_size_buttons=False,
                        icon='kingb.ico').Layout(layout)
 
-    board = chess.Board()
+    turno = "jugador_uno"
     move_count = 1
     move_state = move_from = move_to = 0
 
-    while not board.is_game_over():
-        if board.turn == chess.WHITE:
+    while True:
+        if turno == "jugador_uno":
             move_state = 0
             while True:
                 button, value = window.Read()
@@ -154,18 +153,18 @@ def PlayGame():
 
                         picked_move = '{}{}{}{}'.format('abcdefgh'[move_from[1]], 8 - move_from[0],'abcdefgh'[move_to[1]], 8 - move_to[0])
 
-                        board.push(chess.Move.from_uci(picked_move))
+                        #board.push(chess.Move.from_uci(picked_move))
 
                         psg_board2[move_from[0]][move_from[1]] = BLANK  # place blank where piece was
                         psg_board[row][col] = piece  # place piece in the move-to square
 
                         redraw_board2(window, psg_board)
                         move_count += 1
-                        board.turn = chess.BLACK
+                        turno = "jugador_dos"
                         break
         else:
             print("Juega oponente")
-            board.turn = chess.WHITE
+            turno = "jugador_uno"
     sg.Popup('Game over!', 'Thank you for playing')
 
 PlayGame()
