@@ -61,7 +61,7 @@ def redraw_board(window, board):
             piece_image = images[board[i][j]]
             elem = window.FindElement(key=(i, j))
             elem.Update(button_color=('white', color),
-                        image_filename=piece_image, )
+                        image_filename=piece_image)
 
 def redraw_board2(window, board):
     for i in range(8):
@@ -69,12 +69,10 @@ def redraw_board2(window, board):
             color = '#B58863' if (i + j) % 2 else '#F0D9B5'
             piece_image = images[board[i][j]]
             elem = window.FindElement(key=(i, j))
-            elem.Update(button_color=('white', color),
-                        image_filename=piece_image, )
+            print(elem)
+            elem.Update(image_filename=piece_image)
 
 def PlayGame():
-    menu_def = [['&File', ['&Open PGN File', 'E&xit']],
-                ['&Help', '&About...'], ]
 
     # sg.SetOptions(margins=(0,0))
     sg.ChangeLookAndFeel('GreenTan')
@@ -110,8 +108,7 @@ def PlayGame():
     board_tab = [[sg.Column(atril), sg.Column(board_layout)]]
 
     # the main window layout
-    layout = [[sg.Menu(menu_def, tearoff=False)],
-              [sg.TabGroup([[sg.Tab('Tablero', board_tab)]], title_color='red')]]
+    layout = [[sg.TabGroup([[sg.Tab('Tablero', board_tab)]], title_color='red')]]
 
     window = sg.Window('ScrabbleAr',
                        default_button_element_size=(12, 1),
@@ -158,6 +155,7 @@ def PlayGame():
                         psg_board2[move_from[0]][move_from[1]] = BLANK  # place blank where piece was
                         psg_board[row][col] = piece  # place piece in the move-to square
 
+                        redraw_board(window, psg_board2)
                         redraw_board2(window, psg_board)
                         move_count += 1
                         turno = "jugador_dos"
