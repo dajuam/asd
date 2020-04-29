@@ -72,35 +72,36 @@ def redraw_tablero(window, board):
             elem.Update(image_filename=piece_image)
 
 def PlayGame():
-    psg_board = copy.deepcopy(tablero_inicial)
+    board_tablero = copy.deepcopy(tablero_inicial)
     # cantidad de tableros como de jugadores
     board_atril = copy.deepcopy(atril_inicial)
 
     # genero el tablero principal
-    tablero = [[sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 13') for a in 'abcdefgh']]
+    tablero = [[sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'abcdefgh']]
     # loop though board and create buttons with images
     for i in range(8):
-        row = [sg.T(str(8 - i) + '   ', font='Any 13')]
+        row = [sg.T(str(8 - i) + '   ', font='Any 10')]
         for j in range(8):
-            piece_image = images[psg_board[i][j]]
+            piece_image = images[board_tablero[i][j]]
             row.append(render_square(piece_image, key=(i, j), location=(i, j)))
-        row.append(sg.T(str(8 - i) + '   ', font='Any 13'))
+        row.append(sg.T(str(8 - i) + '   ', font='Any 10'))
         tablero.append(row)
     # add the labels across bottom of board
-    tablero.append([sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 13') for a in 'abcdefgh'])
+    tablero.append([sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'abcdefgh'])
 
     # genero el atril
-    atril = [[sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 13') for a in 'a']]
+    atril = [[sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'a']]
     # loop though board and create buttons with images
     for i in range(6):
-        row = [sg.T(str(6 - i) + '   ', font='Any 13')]
+        row = [sg.T(str(6 - i) + '   ', font='Any 10')]
         piece_image = images[board_atril[i]]
         row.append(render_square(piece_image, key=i, location=j))
-        row.append(sg.T(str(6 - i) + '   ', font='Any 13'))
+        row.append(sg.T(str(6 - i) + '   ', font='Any 10'))
         atril.append(row)
     # add the labels across bottom of board
-    atril.append([sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 13') for a in 'a'])
+    atril.append([sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'a'])
 
+    # incluyo todo
     board_tab = [[sg.Column(atril), sg.Column(tablero)]]
 
     # the main window layout
@@ -123,7 +124,7 @@ def PlayGame():
                 if button in (None, 'Exit'):
                     exit()
                 if type(button) is int:            
-                    print("origen")
+                    print("Origen")
                     move_from = button
                     row = move_from
                     piece = board_atril[row]  # get the move-from piece
@@ -132,7 +133,7 @@ def PlayGame():
                     move_state = 1
                 if type(button) is tuple:
                     # Destino
-                    print("destino")
+                    print("Destino")
                     move_to = button
                     row, col = move_to
 
@@ -144,13 +145,11 @@ def PlayGame():
 
                     #picked_move = '{}{}{}{}'.format('abcdefgh'[move_from, 8 - move_from,'abcdefgh'[move_to[1]], 8 - move_to[0])
 
-                    #board.push(chess.Move.from_uci(picked_move))
-
                     board_atril[move_from] = BLANK  # place blank where piece was
-                    psg_board[row][col] = piece  # place piece in the move-to square
+                    board_tablero[row][col] = piece  # place piece in the move-to square
 
                     redraw_atril(window, board_atril)
-                    redraw_tablero(window, psg_board)
+                    redraw_tablero(window, board_tablero)
                     move_count += 1
                     turno = "jugador_dos"
                     break
