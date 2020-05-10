@@ -6,6 +6,7 @@ from pattern.es import parse
 
 PATH = '.'
 
+# De la A a la L por ahora
 BLANK = 0
 A = 1
 B = 2
@@ -20,14 +21,17 @@ J = 10
 K = 11
 L = 12
 
+# Orientacion de las palabras
 ORIENTATION_RIGHT = 1
 ORIENTATION_DOWN = 2
 ORIENTATION_ERROR = -1
 ORIENTATION_NONE = 0
 
+# Tablero en blanco de 10x10
 tablero_inicial = [[BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10,
                  [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10]
 
+# Metadata de las letras
 blank = {'letra': '', 'imagen': os.path.join(PATH, 'blank.png')}
 a = {'letra': 'A', 'imagen': os.path.join(PATH, 'a.png')}
 b = {'letra': 'B', 'imagen': os.path.join(PATH, 'b.png')}
@@ -68,7 +72,7 @@ def redraw_tablero(window, board):
             elem = window.FindElement(key=(i, j))
             elem.Update(image_filename=piece_image)
 
-def definir_sentido(movimiento_actual, movimiento_anterior):
+def get_orientation(movimiento_actual, movimiento_anterior):
     sentido = ORIENTATION_ERROR
     # eje X sumo 1 y la Y quedo igual, se va pa la derecha
     if movimiento_anterior[0] == movimiento_actual[0] and movimiento_anterior[1]+1 == movimiento_actual[1]:
@@ -77,13 +81,13 @@ def definir_sentido(movimiento_actual, movimiento_anterior):
         sentido = ORIENTATION_DOWN
     return sentido
 
-def movimiento_correcto(movimiento_actual, movimiento_anterior, sentido):
-    if definir_sentido(movimiento_actual, movimiento_anterior) == sentido:
+def correct_movement(movimiento_actual, movimiento_anterior, sentido):
+    if get_orientation(movimiento_actual, movimiento_anterior) == sentido:
         return True
     else:
         return False
 
-def PlayGame():
+def Play():
     board_tablero = copy.deepcopy(tablero_inicial)
     # aqui deberia ir cantidad de atriles como de jugadores
     board_atril = copy.deepcopy(atril_inicial)
@@ -143,12 +147,12 @@ def PlayGame():
 
                 if primer_movimiento == False:
                     if sentido == ORIENTATION_NONE:
-                        sentido = definir_sentido(move_to, move_to_anterior)
+                        sentido = get_orientation(move_to, move_to_anterior)
                     if sentido == ORIENTATION_ERROR:
                         sg.Popup('Atención: ', 'No se pudo calcular el sentido')
                         sentido = ORIENTATION_NONE
                         break
-                    if not movimiento_correcto(move_to, move_to_anterior, sentido):
+                    if not correct_movement(move_to, move_to_anterior, sentido):
                         sg.Popup('Atención: ', 'Movimiento incorrecto')
                         break
 
@@ -163,4 +167,4 @@ def PlayGame():
                 primer_movimiento = False
                 break
 
-PlayGame()
+Play()
