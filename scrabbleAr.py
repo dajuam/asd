@@ -2,7 +2,7 @@ import PySimpleGUI as sg
 import os
 import copy
 import random
-from pattern.es import parse
+from pattern.es import tag
 
 PATH = '.'
 
@@ -123,8 +123,11 @@ def Play():
             button, value = window.Read()
             if button == 'CHECK':
                 if len(word) >= 2 and len(word) <=7:
-                    sg.Popup('Palabra a chequear: ', word)
-                    # Chequear existencia de la palabra
+                    wordType = tag(word)[0][1]
+                    if wordType == 'VB':
+                        sg.Popup('La palabra existe y es un verbo: ', word)
+                    else:
+                        sg.Popup('La palabra no es un verbo: ', word)
                     # Si esta bien, calcular puntos y luego cambia el turno
                 else:
                     sg.Popup('Atención: ', 'La palabra formada no cumple con los mínimos ni máximos')
@@ -142,6 +145,9 @@ def Play():
                 move_state = 1
             # click destino
             if type(button) is tuple:
+                if move_from == 0:
+                    sg.Popup('Atención: ', 'Click incorrecto, debe insistir en el atril')
+                    break
                 move_to = button
                 row, col = move_to
 
