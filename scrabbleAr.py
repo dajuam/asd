@@ -1,8 +1,8 @@
 import PySimpleGUI as sg
 import os
-import sys
 import copy
 import random
+from pattern.es import parse
 
 PATH = '.'
 
@@ -20,16 +20,13 @@ J = 10
 K = 11
 L = 12
 
-tablero_inicial = [[BLANK, ] * 10,
-                 [BLANK, ] * 10,
-                 [BLANK, ] * 10,
-                 [BLANK, ] * 10,
-                 [BLANK, ] * 10,
-                 [BLANK, ] * 10,
-                 [BLANK, ] * 10,
-                 [BLANK, ] * 10,
-                 [BLANK, ] * 10,
-                 [BLANK, ] * 10]
+ORIENTATION_RIGHT = 1
+ORIENTATION_DOWN = 2
+ORIENTATION_ERROR = -1
+ORIENTATION_NONE = 0
+
+tablero_inicial = [[BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10,
+                 [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10]
 
 blank = {'letra': '', 'imagen': os.path.join(PATH, 'blank.png')}
 a = {'letra': 'A', 'imagen': os.path.join(PATH, 'a.png')}
@@ -50,13 +47,10 @@ images = {A: a, B: b, C: c, D: d, E: e, F: f,
 
 atril_inicial = []
 
+images_keys = list(images.keys())
+images_keys.remove(0)
 for i in range(0,9):
-    n = random.choice(list(images.keys()))
-    if n == 0:
-        # para evitar el blanco
-        atril_inicial.append(A)
-    else:
-        atril_inicial.append(n)
+    atril_inicial.append(random.choice(images_keys))
 
 def render_square(image, key, location):
     return sg.RButton('', image_filename=image, size=(1, 1), pad=(0, 0), key=key)
@@ -74,93 +68,99 @@ def redraw_tablero(window, board):
             elem = window.FindElement(key=(i, j))
             elem.Update(image_filename=piece_image)
 
+def definir_sentido(movimiento_actual, movimiento_anterior):
+    sentido = ORIENTATION_ERROR
+    # eje X sumo 1 y la Y quedo igual, se va pa la derecha
+    if movimiento_anterior[0] == movimiento_actual[0] and movimiento_anterior[1]+1 == movimiento_actual[1]:
+        sentido = ORIENTATION_RIGHT
+    if movimiento_anterior[0]+1 == movimiento_actual[0] and movimiento_anterior[1] == movimiento_actual[1]:
+        sentido = ORIENTATION_DOWN
+    return sentido
+
+def movimiento_correcto(movimiento_actual, movimiento_anterior, sentido):
+    if definir_sentido(movimiento_actual, movimiento_anterior) == sentido:
+        return True
+    else:
+        return False
+
 def PlayGame():
     board_tablero = copy.deepcopy(tablero_inicial)
-    # cantidad de tableros como de jugadores
+    # aqui deberia ir cantidad de atriles como de jugadores
     board_atril = copy.deepcopy(atril_inicial)
-    print(board_atril)
 
-    # genero el tablero principal
-    tablero = [[sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'abcdefghij']]
-    # loop though board and create buttons with images
+    # genero el tablero principal en blanco
+    tablero = []
     for i in range(10):
-        row = [sg.T(str(10 - i) + '   ', font='Any 10')]
+        row = []
         for j in range(10):
             piece_image = images[board_tablero[i][j]]
             row.append(render_square(piece_image['imagen'], key=(i, j), location=(i, j)))
-        row.append(sg.T(str(10 - i) + '   ', font='Any 10'))
         tablero.append(row)
-    # add the labels across bottom of board
-    tablero.append([sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'abcdefghij'])
 
-    # genero el atril
-    atril = [[sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'a']]
-    # loop though board and create buttons with images
+    # genero el atril con las letras aleatorias
+    atril = []
     for i in range(7):
-        row = [sg.T(str(7 - i) + '   ', font='Any 10')]
+        row = []
         piece_image = images[board_atril[i]]
         row.append(render_square(piece_image['imagen'], key=i, location=j))
-        row.append(sg.T(str(7 - i) + '   ', font='Any 10'))
         atril.append(row)
-    # add the labels across bottom of board
-    atril.append([sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'a'])
 
-    # incluyo todo
-    board_tab = [[sg.Column(atril), sg.Column(tablero)]]
+    board_tab = [[sg.Button('CHECK')], [sg.Column(atril), sg.Column(tablero)]]
+    window = sg.Window('ScrabbleAr', default_button_element_size=(12, 1), auto_size_buttons=False).Layout(board_tab)
 
-    # the main window layout
-    layout = [[sg.TabGroup([[sg.Tab('Tablero', board_tab)]], title_color='red')]]
-
-    window = sg.Window('ScrabbleAr',
-                       default_button_element_size=(12, 1),
-                       auto_size_buttons=False).Layout(layout)
-
-    turno = "jugador_uno"
-    move_count = 1
+    palabra = ''
     move_state = move_from = move_to = 0
+    primer_movimiento = True
+    sentido = ORIENTATION_NONE
 
     while True:
-        if turno == "jugador_uno":
-            move_state = 0
-            while True:
-                button, value = window.Read()
-                if button in (None, 'Exit'):
-                    exit()
-                if type(button) is int:            
-                    print("Origen")
-                    move_from = button
-                    row = move_from
-                    piece = board_atril[row]  # get the move-from piece
-                    metadata = atril_inicial[row]
-                    print(images[board_atril[row]]['letra'])
-                    #button_square = window.FindElement(key=(row, col))
-                    #button_square.Update(button_color=('white', 'red'))
-                    move_state = 1
-                if type(button) is tuple:
-                    # Destino
-                    print("Destino")
-                    move_to = button
-                    row, col = move_to
-
-                    # if move_to == move_from:  # cancelled move
-                    #     color = '#B58863' if (row + col) % 2 else '#F0D9B5'
-                    #     #button_square.Update(button_color=('white', color))
-                    #     move_state = 0
-                    #     continue
-
-                    #picked_move = '{}{}{}{}'.format('abcdefgh'[move_from, 8 - move_from,'abcdefgh'[move_to[1]], 8 - move_to[0])
-
-                    board_atril[move_from] = BLANK  # place blank where piece was
-                    board_tablero[row][col] = piece  # place piece in the move-to square
-
-                    redraw_atril(window, board_atril)
-                    redraw_tablero(window, board_tablero)
-                    move_count += 1
-                    turno = "jugador_dos"
+        move_state = 0
+        while True:
+            button, value = window.Read()
+            if button == 'CHECK':
+                if len(palabra) >= 2 and len(palabra) <=7:
+                    sg.Popup('Palabra a chequear: ', palabra)
+                    # Chequear existencia de la palabra
+                    # Si esta bien, calcular puntos y luego cambia el turno
+                else:
+                    sg.Popup('Atención: ', 'La palabra formada no cumple con los mínimos ni máximos')
+            if button in (None, 'Exit'):
+                exit()
+            # Click origen
+            if type(button) is int:
+                if move_from != 0:
+                    sg.Popup('Atención: ', 'Click incorrecto, debe insistir en el tablero')
                     break
-        else:
-            print("Juega oponente")
-            turno = "jugador_uno"
-    sg.Popup('Game over!', 'Thank you for playing')
+                move_from = button
+                row = move_from
+                piece = board_atril[row]
+                letra_elegida = images[board_atril[row]]['letra']
+                move_state = 1
+            # click destino
+            if type(button) is tuple:
+                move_to = button
+                row, col = move_to
+
+                if primer_movimiento == False:
+                    if sentido == ORIENTATION_NONE:
+                        sentido = definir_sentido(move_to, move_to_anterior)
+                    if sentido == ORIENTATION_ERROR:
+                        sg.Popup('Atención: ', 'No se pudo calcular el sentido')
+                        sentido = ORIENTATION_NONE
+                        break
+                    if not movimiento_correcto(move_to, move_to_anterior, sentido):
+                        sg.Popup('Atención: ', 'Movimiento incorrecto')
+                        break
+
+                board_atril[move_from] = BLANK
+                board_tablero[row][col] = piece
+                redraw_atril(window, board_atril)
+                redraw_tablero(window, board_tablero)
+                palabra = palabra + letra_elegida
+
+                move_to_anterior = move_to
+                move_state = move_from = move_to = 0
+                primer_movimiento = False
+                break
 
 PlayGame()
