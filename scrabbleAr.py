@@ -6,7 +6,6 @@ from pattern.es import tag
 
 PATH = '.'
 
-# De la A a la L por ahora
 BLANK = 0
 A = 1
 B = 2
@@ -20,6 +19,23 @@ I = 9
 J = 10
 K = 11
 L = 12
+LL = 13
+M = 14
+N = 15
+Ñ = 16
+O = 17
+P = 18
+Q = 19
+R = 20
+RR = 21
+S = 22
+T = 23
+U = 24
+V = 25
+W = 26
+X = 27
+Y = 28
+Z = 29
 
 # Orientacion de las palabras
 ORIENTATION_RIGHT = 1
@@ -45,9 +61,28 @@ i = {'letra': 'I', 'imagen': os.path.join(PATH, 'i.png')}
 j = {'letra': 'J', 'imagen': os.path.join(PATH, 'j.png')}
 k = {'letra': 'K', 'imagen': os.path.join(PATH, 'k.png')}
 l = {'letra': 'L', 'imagen': os.path.join(PATH, 'l.png')}
+ll = {'letra': 'LL', 'imagen': os.path.join(PATH, 'll.png')}
+m = {'letra': 'M', 'imagen': os.path.join(PATH, 'm.png')}
+n = {'letra': 'N', 'imagen': os.path.join(PATH, 'n.png')}
+ñ = {'letra': 'Ñ', 'imagen': os.path.join(PATH, 'ñ.png')}
+o = {'letra': 'O', 'imagen': os.path.join(PATH, 'o.png')}
+p = {'letra': 'P', 'imagen': os.path.join(PATH, 'p.png')}
+q = {'letra': 'Q', 'imagen': os.path.join(PATH, 'q.png')}
+r = {'letra': 'R', 'imagen': os.path.join(PATH, 'r.png')}
+rr = {'letra': 'RR', 'imagen': os.path.join(PATH, 'rr.png')}
+s = {'letra': 'S', 'imagen': os.path.join(PATH, 's.png')}
+t = {'letra': 'T', 'imagen': os.path.join(PATH, 't.png')}
+u = {'letra': 'U', 'imagen': os.path.join(PATH, 'u.png')}
+v = {'letra': 'V', 'imagen': os.path.join(PATH, 'v.png')}
+w = {'letra': 'W', 'imagen': os.path.join(PATH, 'w.png')}
+x = {'letra': 'X', 'imagen': os.path.join(PATH, 'x.png')}
+y = {'letra': 'Y', 'imagen': os.path.join(PATH, 'y.png')}
+z = {'letra': 'Z', 'imagen': os.path.join(PATH, 'z.png')}
 
-images = {A: a, B: b, C: c, D: d, E: e, F: f,
-          G: g, H: h, I: i, J: j, K: k, L: l, BLANK: blank}
+images = {BLANK: blank, A: a, B: b, C: c, D: d, E: e, F: f,
+          G: g, H: h, I: i, J: j, K: k, L: l, LL: ll, M: m, 
+          N: n, Ñ: ñ, O: o, P: p, Q: q, R: r, RR: rr, S: s,
+          T: t, U: u, V: v, W: w, X: x, Y: y, Z: z}
 
 initial_atril = []
 
