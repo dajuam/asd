@@ -44,7 +44,7 @@ ORIENTATION_ERROR = -1
 ORIENTATION_NONE = 0
 
 # Tablero en blanco de 10x10
-tablero_inicial = [[BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10,
+initial_tablero = [[BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10,
                  [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10, [BLANK, ] * 10]
 
 # Metadata de las letras
@@ -88,18 +88,28 @@ initial_atril = []
 
 images_keys = list(images.keys())
 images_keys.remove(0)
-for i in range(0,9):
+for i in range(0,7):
     initial_atril.append(random.choice(images_keys))
 
 def render_square(image, key, location):
     return sg.RButton('', image_filename=image, size=(1, 1), pad=(0, 0), key=key)
 
+'''
+Refresca el atril en base a un movimiento. Esto se realiza haciendo un update en
+los botones dependiento los nuevos valores del "board"
+En este caso, si encuentra valores en 0,
+actualizaría la imagen del boton con un "blank"
+'''
 def redraw_atril(window, board):
     for i in range(7):
         piece_image = images[board[i]]['imagen']
         elem = window.FindElement(key=i)
         elem.Update(image_filename=piece_image)
 
+'''
+Refresca el tablero en base a un movimiento. Esto se realiza haciendo un update en
+los botones dependiento los nuevos valores del "board"
+'''
 def redraw_tablero(window, board):
     for i in range(10):
         for j in range(10):
@@ -107,6 +117,7 @@ def redraw_tablero(window, board):
             elem = window.FindElement(key=(i, j))
             elem.Update(image_filename=piece_image)
 
+# Define qué tipo de movimiento se debera seguir en la agregacion de letras al tablero
 def get_orientation(movimiento_actual, movimiento_anterior):
     orientation = ORIENTATION_ERROR
     # eje X sumo 1 y la Y quedo igual, se va pa la derecha
@@ -116,6 +127,10 @@ def get_orientation(movimiento_actual, movimiento_anterior):
         orientation = ORIENTATION_DOWN
     return orientation
 
+'''
+Define si el movimiento es el correcto dependiendo de qué sentido se haya
+fijado al principio de agregada la segunda letra
+'''
 def correct_movement(movimiento_actual, movimiento_anterior, orientation):
     if get_orientation(movimiento_actual, movimiento_anterior) == orientation:
         return True
@@ -123,11 +138,10 @@ def correct_movement(movimiento_actual, movimiento_anterior, orientation):
         return False
 
 def Play():
-    board_tablero = copy.deepcopy(tablero_inicial)
-    # aqui deberia ir cantidad de atriles como de jugadores
+    board_tablero = copy.deepcopy(initial_tablero)
     board_atril = copy.deepcopy(initial_atril)
 
-    # genero el tablero principal en blanco
+    # Genero una matriz de 10x10 de tipo RButton con las imagenes en blanco
     tablero = []
     for i in range(10):
         row = []
@@ -136,7 +150,7 @@ def Play():
             row.append(render_square(piece_image['imagen'], key=(i, j), location=(i, j)))
         tablero.append(row)
 
-    # genero el atril con las letras aleatorias
+    # Genero un array de 7 elementos de tipo RButton con las imágenes de las letras aleatorias
     atril = []
     for i in range(7):
         row = []
@@ -148,12 +162,13 @@ def Play():
     window = sg.Window('ScrabbleAr', default_button_element_size=(12, 1), auto_size_buttons=False).Layout(board_tab)
 
     word = ''
-    move_state = move_from = move_to = 0
+    move_from = move_to = 0
     first_movement = True
     orientation = ORIENTATION_NONE
+    # Temporal para no permitir el click en el atril de los "blancos"
+    keys_chosen = []
 
     while True:
-        move_state = 0
         while True:
             button, value = window.Read()
             if button == 'CHECK':
@@ -170,14 +185,17 @@ def Play():
                 exit()
             # Click origen
             if type(button) is int:
+                if button in keys_chosen:
+                    sg.Popup('Atención: ', 'Click incorrecto, este elemento esta vacio')
+                    break
                 if move_from != 0:
                     sg.Popup('Atención: ', 'Click incorrecto, debe insistir en el tablero')
                     break
                 move_from = button
-                row = move_from
-                piece = board_atril[row]
-                letter_choosen = images[board_atril[row]]['letra']
-                move_state = 1
+                # Busco que numero de letra esta en la posicion clickeada
+                piece = board_atril[move_from]
+                letter_choosen = images[board_atril[move_from]]['letra']
+                keys_chosen.append(button)
             # click destino
             if type(button) is tuple:
                 if move_from == 0:
@@ -197,14 +215,17 @@ def Play():
                         sg.Popup('Atención: ', 'Movimiento incorrecto')
                         break
 
+                # La posicion de la letra que se fue queda en 0
                 board_atril[move_from] = BLANK
+                # El tablero queda con el numero "nuevo"
                 board_tablero[row][col] = piece
+                # Luego tengo que "redibujar" ambos tableros
                 redraw_atril(window, board_atril)
                 redraw_tablero(window, board_tablero)
                 word = word + letter_choosen
 
                 move_to_anterior = move_to
-                move_state = move_from = move_to = 0
+                move_from = move_to = 0
                 first_movement = False
                 break
 
