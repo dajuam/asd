@@ -7,51 +7,54 @@ import random
 PATH = '.'
 
 BLANK = 0
-PAWNB = 1
-KNIGHTB = 2
-BISHOPB = 3
-ROOKB = 4
-KINGB = 5
-QUEENB = 6
-PAWNW = 7
-KNIGHTW = 8
-BISHOPW = 9
-ROOKW = 10
-KINGW = 11
-QUEENW = 12
+A = 1
+B = 2
+C = 3
+D = 4
+E = 5
+F = 6
+G = 7
+H = 8
+I = 9
+J = 10
+K = 11
+L = 12
 
-tablero_inicial = [[BLANK, ] * 8,
-                 [BLANK, ] * 8,
-                 [BLANK, ] * 8,
-                 [BLANK, ] * 8,
-                 [BLANK, ] * 8,
-                 [BLANK, ] * 8,
-                 [BLANK, ] * 8,
-                 [BLANK, ] * 8]
+tablero_inicial = [[BLANK, ] * 10,
+                 [BLANK, ] * 10,
+                 [BLANK, ] * 10,
+                 [BLANK, ] * 10,
+                 [BLANK, ] * 10,
+                 [BLANK, ] * 10,
+                 [BLANK, ] * 10,
+                 [BLANK, ] * 10,
+                 [BLANK, ] * 10,
+                 [BLANK, ] * 10]
 
-blank = os.path.join(PATH, 'blank.png')
-bishopB = os.path.join(PATH, 'nbishopb.png')
-bishopW = os.path.join(PATH, 'nbishopw.png')
-pawnB = os.path.join(PATH, 'npawnb.png')
-pawnW = os.path.join(PATH, 'npawnw.png')
-knightB = os.path.join(PATH, 'nknightb.png')
-knightW = os.path.join(PATH, 'nknightw.png')
-rookB = os.path.join(PATH, 'nrookb.png')
-rookW = os.path.join(PATH, 'nrookw.png')
-queenB = os.path.join(PATH, 'nqueenb.png')
-queenW = os.path.join(PATH, 'nqueenw.png')
-kingB = os.path.join(PATH, 'nkingb.png')
-kingW = os.path.join(PATH, 'nkingw.png')
+blank = {'letra': '', 'imagen': os.path.join(PATH, 'blank.png')}
+a = {'letra': 'A', 'imagen': os.path.join(PATH, 'a.png')}
+b = {'letra': 'B', 'imagen': os.path.join(PATH, 'b.png')}
+c = {'letra': 'C', 'imagen': os.path.join(PATH, 'c.png')}
+d = {'letra': 'D', 'imagen': os.path.join(PATH, 'd.png')}
+e = {'letra': 'E', 'imagen': os.path.join(PATH, 'e.png')}
+f = {'letra': 'F', 'imagen': os.path.join(PATH, 'f.png')}
+g = {'letra': 'G', 'imagen': os.path.join(PATH, 'g.png')}
+h = {'letra': 'H', 'imagen': os.path.join(PATH, 'h.png')}
+i = {'letra': 'I', 'imagen': os.path.join(PATH, 'i.png')}
+j = {'letra': 'J', 'imagen': os.path.join(PATH, 'j.png')}
+k = {'letra': 'K', 'imagen': os.path.join(PATH, 'k.png')}
+l = {'letra': 'L', 'imagen': os.path.join(PATH, 'l.png')}
 
-images = {BISHOPB: bishopB, BISHOPW: bishopW, PAWNB: pawnB, PAWNW: pawnW, KNIGHTB: knightB, KNIGHTW: knightW,
-          ROOKB: rookB, ROOKW: rookW, KINGB: kingB, KINGW: kingW, QUEENB: queenB, QUEENW: queenW, BLANK: blank}
+images = {A: a, B: b, C: c, D: d, E: e, F: f,
+          G: g, H: h, I: i, J: j, K: k, L: l, BLANK: blank}
 
 atril_inicial = []
-for i in range(0,6):
+
+for i in range(0,9):
     n = random.choice(list(images.keys()))
     if n == 0:
         # para evitar el blanco
-        atril_inicial.append(KINGB)
+        atril_inicial.append(A)
     else:
         atril_inicial.append(n)
 
@@ -59,15 +62,15 @@ def render_square(image, key, location):
     return sg.RButton('', image_filename=image, size=(1, 1), pad=(0, 0), key=key)
 
 def redraw_atril(window, board):
-    for i in range(6):
-        piece_image = images[board[i]]
+    for i in range(7):
+        piece_image = images[board[i]]['imagen']
         elem = window.FindElement(key=i)
         elem.Update(image_filename=piece_image)
 
 def redraw_tablero(window, board):
-    for i in range(8):
-        for j in range(8):
-            piece_image = images[board[i][j]]
+    for i in range(10):
+        for j in range(10):
+            piece_image = images[board[i][j]]['imagen']
             elem = window.FindElement(key=(i, j))
             elem.Update(image_filename=piece_image)
 
@@ -75,28 +78,29 @@ def PlayGame():
     board_tablero = copy.deepcopy(tablero_inicial)
     # cantidad de tableros como de jugadores
     board_atril = copy.deepcopy(atril_inicial)
+    print(board_atril)
 
     # genero el tablero principal
-    tablero = [[sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'abcdefgh']]
+    tablero = [[sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'abcdefghij']]
     # loop though board and create buttons with images
-    for i in range(8):
-        row = [sg.T(str(8 - i) + '   ', font='Any 10')]
-        for j in range(8):
+    for i in range(10):
+        row = [sg.T(str(10 - i) + '   ', font='Any 10')]
+        for j in range(10):
             piece_image = images[board_tablero[i][j]]
-            row.append(render_square(piece_image, key=(i, j), location=(i, j)))
-        row.append(sg.T(str(8 - i) + '   ', font='Any 10'))
+            row.append(render_square(piece_image['imagen'], key=(i, j), location=(i, j)))
+        row.append(sg.T(str(10 - i) + '   ', font='Any 10'))
         tablero.append(row)
     # add the labels across bottom of board
-    tablero.append([sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'abcdefgh'])
+    tablero.append([sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'abcdefghij'])
 
     # genero el atril
     atril = [[sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'a']]
     # loop though board and create buttons with images
-    for i in range(6):
-        row = [sg.T(str(6 - i) + '   ', font='Any 10')]
+    for i in range(7):
+        row = [sg.T(str(7 - i) + '   ', font='Any 10')]
         piece_image = images[board_atril[i]]
-        row.append(render_square(piece_image, key=i, location=j))
-        row.append(sg.T(str(6 - i) + '   ', font='Any 10'))
+        row.append(render_square(piece_image['imagen'], key=i, location=j))
+        row.append(sg.T(str(7 - i) + '   ', font='Any 10'))
         atril.append(row)
     # add the labels across bottom of board
     atril.append([sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 10') for a in 'a'])
@@ -109,8 +113,7 @@ def PlayGame():
 
     window = sg.Window('ScrabbleAr',
                        default_button_element_size=(12, 1),
-                       auto_size_buttons=False,
-                       icon='kingb.ico').Layout(layout)
+                       auto_size_buttons=False).Layout(layout)
 
     turno = "jugador_uno"
     move_count = 1
@@ -128,6 +131,8 @@ def PlayGame():
                     move_from = button
                     row = move_from
                     piece = board_atril[row]  # get the move-from piece
+                    metadata = atril_inicial[row]
+                    print(images[board_atril[row]]['letra'])
                     #button_square = window.FindElement(key=(row, col))
                     #button_square.Update(button_color=('white', 'red'))
                     move_state = 1
