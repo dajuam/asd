@@ -49,12 +49,12 @@ l = {'letra': 'L', 'imagen': os.path.join(PATH, 'l.png')}
 images = {A: a, B: b, C: c, D: d, E: e, F: f,
           G: g, H: h, I: i, J: j, K: k, L: l, BLANK: blank}
 
-atril_inicial = []
+initial_atril = []
 
 images_keys = list(images.keys())
 images_keys.remove(0)
 for i in range(0,9):
-    atril_inicial.append(random.choice(images_keys))
+    initial_atril.append(random.choice(images_keys))
 
 def render_square(image, key, location):
     return sg.RButton('', image_filename=image, size=(1, 1), pad=(0, 0), key=key)
@@ -73,16 +73,16 @@ def redraw_tablero(window, board):
             elem.Update(image_filename=piece_image)
 
 def get_orientation(movimiento_actual, movimiento_anterior):
-    sentido = ORIENTATION_ERROR
+    orientation = ORIENTATION_ERROR
     # eje X sumo 1 y la Y quedo igual, se va pa la derecha
     if movimiento_anterior[0] == movimiento_actual[0] and movimiento_anterior[1]+1 == movimiento_actual[1]:
-        sentido = ORIENTATION_RIGHT
+        orientation = ORIENTATION_RIGHT
     if movimiento_anterior[0]+1 == movimiento_actual[0] and movimiento_anterior[1] == movimiento_actual[1]:
-        sentido = ORIENTATION_DOWN
-    return sentido
+        orientation = ORIENTATION_DOWN
+    return orientation
 
-def correct_movement(movimiento_actual, movimiento_anterior, sentido):
-    if get_orientation(movimiento_actual, movimiento_anterior) == sentido:
+def correct_movement(movimiento_actual, movimiento_anterior, orientation):
+    if get_orientation(movimiento_actual, movimiento_anterior) == orientation:
         return True
     else:
         return False
@@ -90,7 +90,7 @@ def correct_movement(movimiento_actual, movimiento_anterior, sentido):
 def Play():
     board_tablero = copy.deepcopy(tablero_inicial)
     # aqui deberia ir cantidad de atriles como de jugadores
-    board_atril = copy.deepcopy(atril_inicial)
+    board_atril = copy.deepcopy(initial_atril)
 
     # genero el tablero principal en blanco
     tablero = []
@@ -112,18 +112,18 @@ def Play():
     board_tab = [[sg.Button('CHECK')], [sg.Column(atril), sg.Column(tablero)]]
     window = sg.Window('ScrabbleAr', default_button_element_size=(12, 1), auto_size_buttons=False).Layout(board_tab)
 
-    palabra = ''
+    word = ''
     move_state = move_from = move_to = 0
-    primer_movimiento = True
-    sentido = ORIENTATION_NONE
+    first_movement = True
+    orientation = ORIENTATION_NONE
 
     while True:
         move_state = 0
         while True:
             button, value = window.Read()
             if button == 'CHECK':
-                if len(palabra) >= 2 and len(palabra) <=7:
-                    sg.Popup('Palabra a chequear: ', palabra)
+                if len(word) >= 2 and len(word) <=7:
+                    sg.Popup('Palabra a chequear: ', word)
                     # Chequear existencia de la palabra
                     # Si esta bien, calcular puntos y luego cambia el turno
                 else:
@@ -138,21 +138,21 @@ def Play():
                 move_from = button
                 row = move_from
                 piece = board_atril[row]
-                letra_elegida = images[board_atril[row]]['letra']
+                letter_choosen = images[board_atril[row]]['letra']
                 move_state = 1
             # click destino
             if type(button) is tuple:
                 move_to = button
                 row, col = move_to
 
-                if primer_movimiento == False:
-                    if sentido == ORIENTATION_NONE:
-                        sentido = get_orientation(move_to, move_to_anterior)
-                    if sentido == ORIENTATION_ERROR:
+                if first_movement == False:
+                    if orientation == ORIENTATION_NONE:
+                        orientation = get_orientation(move_to, move_to_anterior)
+                    if orientation == ORIENTATION_ERROR:
                         sg.Popup('Atención: ', 'No se pudo calcular el sentido')
-                        sentido = ORIENTATION_NONE
+                        orientation = ORIENTATION_NONE
                         break
-                    if not correct_movement(move_to, move_to_anterior, sentido):
+                    if not correct_movement(move_to, move_to_anterior, orientation):
                         sg.Popup('Atención: ', 'Movimiento incorrecto')
                         break
 
@@ -160,11 +160,11 @@ def Play():
                 board_tablero[row][col] = piece
                 redraw_atril(window, board_atril)
                 redraw_tablero(window, board_tablero)
-                palabra = palabra + letra_elegida
+                word = word + letter_choosen
 
                 move_to_anterior = move_to
                 move_state = move_from = move_to = 0
-                primer_movimiento = False
+                first_movement = False
                 break
 
 Play()
