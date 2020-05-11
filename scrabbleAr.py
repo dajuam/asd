@@ -155,14 +155,14 @@ def Play():
     for i in range(7):
         row = []
         piece_image = images[board_atril[i]]
-        row.append(render_square(piece_image['imagen'], key=i, location=j))
+        row.append(render_square(piece_image['imagen'], key=i, location=i))
         atril.append(row)
 
     board_tab = [[sg.Button('CHECK')], [sg.Column(atril), sg.Column(tablero)]]
     window = sg.Window('ScrabbleAr', default_button_element_size=(12, 1), auto_size_buttons=False).Layout(board_tab)
 
     word = ''
-    move_from = move_to = 0
+    move_from = move_to = -1
     first_movement = True
     orientation = ORIENTATION_NONE
     # Temporal para no permitir el click en el atril de los "blancos"
@@ -188,7 +188,7 @@ def Play():
                 if button in keys_chosen:
                     sg.Popup('Atención: ', 'Click incorrecto, este elemento esta vacio')
                     break
-                if move_from != 0:
+                if move_from != -1:
                     sg.Popup('Atención: ', 'Click incorrecto, debe insistir en el tablero')
                     break
                 move_from = button
@@ -198,7 +198,7 @@ def Play():
                 keys_chosen.append(button)
             # click destino
             if type(button) is tuple:
-                if move_from == 0:
+                if move_from == -1:
                     sg.Popup('Atención: ', 'Click incorrecto, debe insistir en el atril')
                     break
                 move_to = button
@@ -225,7 +225,7 @@ def Play():
                 word = word + letter_choosen
 
                 move_to_anterior = move_to
-                move_from = move_to = 0
+                move_from = move_to = -1
                 first_movement = False
                 break
 
