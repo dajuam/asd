@@ -91,7 +91,7 @@ images_keys.remove(0)
 for i in range(0,7):
     initial_atril.append(random.choice(images_keys))
 
-def render_square(image, key, location):
+def render_square(image, key):
     return sg.RButton('', image_filename=image, size=(1, 1), pad=(0, 0), key=key)
 
 '''
@@ -146,8 +146,8 @@ def Play():
     for i in range(10):
         row = []
         for j in range(10):
-            piece_image = images[board_tablero[i][j]]
-            row.append(render_square(piece_image['imagen'], key=(i, j), location=(i, j)))
+            piece_image = images[BLANK]
+            row.append(render_square(piece_image['imagen'], key=(i, j)))
         tablero.append(row)
 
     # Genero un array de 7 elementos de tipo RButton con las imágenes de las letras aleatorias
@@ -155,7 +155,7 @@ def Play():
     for i in range(7):
         row = []
         piece_image = images[board_atril[i]]
-        row.append(render_square(piece_image['imagen'], key=i, location=i))
+        row.append(render_square(piece_image['imagen'], key=i))
         atril.append(row)
 
     board_tab = [[sg.Button('CHECK')], [sg.Column(atril), sg.Column(tablero)]]
